@@ -5,6 +5,8 @@ import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from '../contexts/auth-context';
 import { SettingsProvider } from '../contexts/settings-context';
 import { createTheme } from '../theme';
+import '../styles/fullcalendar.css';
+import 'simplebar/dist/simplebar.min.css';
 
 const App = ({ Component, pageProps }) => {
   const theme = createTheme({

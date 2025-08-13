@@ -1,9 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
-  swcMinify: true,
+  reactStrictMode: false,
+  swcMinify: false,
   experimental: {
     appDir: false,
+  },
+  images: {
+    unoptimized: true
   },
   webpack(config) {
     config.module.rules.push({

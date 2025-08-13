@@ -1,0 +1,146 @@
+/* Estilos básicos do FullCalendar */
+.fc {
+  --fc-bg-event-opacity: 1;
+  --fc-border-color: #e0e0e0;
+  --fc-daygrid-event-dot-width: 10px;
+  --fc-event-text-color: #fff;
+  --fc-list-event-hover-bg-color: #f5f5f5;
+  --fc-neutral-bg-color: #fff;
+  --fc-page-bg-color: #fff;
+  --fc-today-bg-color: rgba(25, 118, 210, 0.25);
+  font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+}
+
+/* Cabeçalho das colunas */
+.fc .fc-col-header-cell-cushion {
+  padding-bottom: 10px;
+  padding-top: 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08333em;
+  line-height: 2.66;
+  text-transform: uppercase;
+}
+
+/* Dias de outros meses */
+.fc .fc-day-other .fc-daygrid-day-top {
+  color: rgba(0, 0, 0, 0.6);
+}
+
+/* Eventos no grid de dias */
+.fc-daygrid-event {
+  border-radius: 4px;
+  padding: 0px 4px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.57;
+  margin: 1px 0;
+}
+
+/* Tempo dos eventos em bloco */
+.fc-daygrid-block-event .fc-event-time {
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.43;
+}
+
+/* Frame dos dias */
+.fc-daygrid-day-frame {
+  padding: 12px;
+}
+
+/* Ocultar mensagem de licença */
+.fc-license-message {
+  display: none !important;
+}
+
+/* Estilos para tema escuro */
+[data-theme="dark"] .fc {
+  --fc-border-color: #424242;
+  --fc-neutral-bg-color: #121212;
+  --fc-page-bg-color: #121212;
+  --fc-list-event-hover-bg-color: #1e1e1e;
+  color: #fff;
+}
+
+[data-theme="dark"] .fc .fc-day-other .fc-daygrid-day-top {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* Botões do FullCalendar */
+.fc-button {
+  background-color: #1976d2;
+  border-color: #1976d2;
+  color: #fff;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.02857em;
+}
+
+.fc-button:hover {
+  background-color: #1565c0;
+  border-color: #1565c0;
+}
+
+.fc-button:disabled {
+  background-color: rgba(0, 0, 0, 0.12);
+  border-color: rgba(0, 0, 0, 0.12);
+  color: rgba(0, 0, 0, 0.26);
+}
+
+/* Toolbar do FullCalendar */
+.fc-toolbar {
+  margin-bottom: 1rem;
+}
+
+.fc-toolbar-title {
+  font-size: 1.25rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+/* Grid de horários */
+.fc-timegrid-slot {
+  height: 2em;
+}
+
+.fc-timegrid-slot-label {
+  font-size: 0.75rem;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+/* Lista de eventos */
+.fc-list-event {
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.fc-list-event:hover {
+  background-color: #f5f5f5;
+}
+
+/* Timeline (se usado) */
+.fc-timeline-slot {
+  border-right: 1px solid #e0e0e0;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .fc-toolbar {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .fc-toolbar-chunk {
+    display: flex;
+    justify-content: center;
+  }
+  
+  .fc-button {
+    padding: 4px 8px;
+    font-size: 0.75rem;
+  }
+}
+
