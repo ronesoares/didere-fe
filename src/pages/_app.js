@@ -1,82 +1,56 @@
 import { useEffect } from 'react';
 import Head from 'next/head';
-import Router from 'next/router';
+import { CssBaseline, ThemeProvider } from '@mui/material';
 import { Toaster } from 'react-hot-toast';
-import { Provider as ReduxProvider } from 'react-redux';
-import nProgress from 'nprogress';
-import { CacheProvider } from '@emotion/react';
-import { ThemeProvider } from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
-import { LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { RTL } from '../components/rtl';
-import { SettingsButton } from '../components/settings-button';
-import { SplashScreen } from '../components/splash-screen';
-import { SettingsConsumer, SettingsProvider } from '../contexts/settings-context';
-import { AuthConsumer, AuthProvider } from '../contexts/jwt-context';
-import { createEmotionCache } from '../utils/create-emotion-cache';
-import { gtmConfig } from '../config';
-import { gtm } from '../lib/gtm';
-import { store } from '../store';
+import { AuthProvider } from '../contexts/auth-context';
+import { SettingsProvider } from '../contexts/settings-context';
 import { createTheme } from '../theme';
-import '../i18n';
 
-Router.events.on('routeChangeStart', nProgress.start);
-Router.events.on('routeChangeError', nProgress.done);
-Router.events.on('routeChangeComplete', nProgress.done);
-
-const clientSideEmotionCache = createEmotionCache();
-
-const App = (props) => {
-  const { Component, emotionCache = clientSideEmotionCache, pageProps } = props;
+const App = ({ Component, pageProps }) => {
+  const theme = createTheme({
+    direction: 'ltr',
+    responsiveFontSizes: true,
+    mode: 'light'
+  });
 
   useEffect(() => {
-    gtm.initialize(gtmConfig);
+    // Remove the server-side injected CSS
+    const jssStyles = document.querySelector('#jss-server-side');
+    if (jssStyles) {
+      jssStyles.parentElement.removeChild(jssStyles);
+    }
   }, []);
 
   return (
-    <CacheProvider value={emotionCache}>
+    <>
       <Head>
-        <title>
-          Didere
-        </title>
-        <meta
-          name="viewport"
-          content="initial-scale=1, width=device-width"
-        />
+        <title>Didere - Plataforma de Locação de Espaços</title>
+        <meta name="viewport" content="initial-scale=1, width=device-width" />
+        <meta name="description" content="Encontre o espaço perfeito para seus eventos e projetos" />
       </Head>
-      <ReduxProvider store={store}>
-        <LocalizationProvider dateAdapter={AdapterDayjs}>
-          <AuthProvider>
-            <SettingsProvider>
-              <SettingsConsumer>
-                {({ settings }) => (
-                  <ThemeProvider
-                    theme={createTheme({
-                      direction: settings.direction,
-                      responsiveFontSizes: settings.responsiveFontSizes,
-                      mode: settings.theme
-                    })}
-                  >
-                    <RTL direction={settings.direction}>
-                      <CssBaseline />
-                      <Toaster position="top-center" />
-                      <AuthConsumer>
-                        {(auth) => !auth.isInitialized
-                          ? <SplashScreen />
-                          : <Component {...pageProps} />}
-                      </AuthConsumer>
-                      <SettingsButton />
-                    </RTL>
-                  </ThemeProvider>
-                )}
-              </SettingsConsumer>
-            </SettingsProvider>
-          </AuthProvider>
-        </LocalizationProvider>
-      </ReduxProvider>
-    </CacheProvider>
+      
+      <SettingsProvider>
+        <AuthProvider>
+          <ThemeProvider theme={theme}>
+            <CssBaseline />
+            <Component {...pageProps} />
+            <Toaster
+              position="top-right"
+              toastOptions={{
+                duration: 4000,
+                style: {
+                  background: theme.palette.background.paper,
+                  color: theme.palette.text.primary,
+                  border: `1px solid ${theme.palette.divider}`,
+                },
+              }}
+            />
+          </ThemeProvider>
+        </AuthProvider>
+      </SettingsProvider>
+    </>
   );
 };
 
 export default App;
+

@@ -1,15 +1,10 @@
-// Remove this if you're not using Fullcalendar features
-const withTM = require('next-transpile-modules')([
-  '@fullcalendar/common',
-  '@fullcalendar/react',
-  '@fullcalendar/daygrid',
-  '@fullcalendar/list',
-  '@fullcalendar/timegrid',
-  '@fullcalendar/timeline'
-]);
-
-module.exports = withTM({
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   reactStrictMode: true,
+  swcMinify: true,
+  experimental: {
+    appDir: false,
+  },
   webpack(config) {
     config.module.rules.push({
       test: /\.svg$/i,
@@ -25,13 +20,10 @@ module.exports = withTM({
     });
     return config;
   },
-  async redirects() {
-    return [
-      {
-        source: '/',
-        destination: '/search/property',
-        permanent: true
-      }
-    ];
-  }
-});
+  env: {
+    NEXT_PUBLIC_API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000',
+  },
+};
+
+module.exports = nextConfig;
+
