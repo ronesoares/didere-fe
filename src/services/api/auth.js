@@ -1,10 +1,10 @@
 import axiosInstance from '../../lib/axios';
 
 class AuthService {
-  async login(email, password) {
+  async login(login, password) {
     try {
       const response = await axiosInstance.post('/auth/login', {
-        email,
+        login,
         password,
       });
 

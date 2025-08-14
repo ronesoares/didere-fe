@@ -57,7 +57,7 @@ const LoginPage = () => {
   const { login, loading } = useAuth();
   
   const [formData, setFormData] = useState({
-    email: '',
+    login: '',
     password: '',
   });
   const [showPassword, setShowPassword] = useState(false);
@@ -74,13 +74,13 @@ const LoginPage = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     
-    if (!formData.email || !formData.password) {
+    if (!formData.login || !formData.password) {
       setError('Por favor, preencha todos os campos');
       return;
     }
 
     try {
-      await login(formData.email, formData.password);
+      await login(formData.login, formData.password);
       toast.success('Login realizado com sucesso!');
       router.push('/dashboard');
     } catch (err) {
@@ -128,8 +128,8 @@ const LoginPage = () => {
                     <TextField
                       label="Email"
                       type="email"
-                      value={formData.email}
-                      onChange={handleChange('email')}
+                      value={formData.login}
+                      onChange={handleChange('login')}
                       startIcon={<EmailIcon />}
                       variant="glass"
                       required

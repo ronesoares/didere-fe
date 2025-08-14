@@ -69,14 +69,12 @@ const Login = () => {
                   href="/"
                   passHref
                 >
-                  <a>
-                    <Logo
-                      sx={{
-                        height: 40,
-                        width: 40
-                      }}
-                    />
-                  </a>
+                  <Logo
+                    sx={{
+                      height: 40,
+                      width: 40
+                    }}
+                  />
                 </NextLink>
                 <Typography variant="h4">
                   Log in
