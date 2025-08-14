@@ -6,8 +6,7 @@ import {
 import { Search as SearchIcon } from '../../../icons/search';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import featureService from '../../../services/registrations/feature-service';
-import typeActivityService from '../../../services/registrations/type-activity-service';
+import PropertiesService from '../../../services/api/properties';
 import authorizationService from '../../../services/auth/authorization-service';
 
 export const PropertyBrowseFilter = (props) => {
@@ -118,7 +117,7 @@ export const PropertyBrowseFilter = (props) => {
 
   const getTypeActivities = (async () => {
     try {
-      const options = await typeActivityService.getAll();
+      const options = await PropertiesService.getTypeActivities();
       setTypeActivitiesOptions(options);
       
       if (property?.typeActivities) {
@@ -145,7 +144,7 @@ export const PropertyBrowseFilter = (props) => {
 
   const getFeatures = (async () => {
       try {
-        const options = await featureService.getAll();
+        const options = await PropertiesService.getFeatures();
         setFeaturesOptions(options);
         
         if (property?.features) {
@@ -176,24 +175,24 @@ export const PropertyBrowseFilter = (props) => {
 
   const handleSearch = () => {
     const finalFilters = {
-      titleContains: keyword || "",
-      heightGreaterThan: sizeFilter?.height ? Number(sizeFilter.height) : 0,
-      heightLessThan: 0,
-      widthGreaterThan: sizeFilter?.width ? Number(sizeFilter.width) : 0,
-      widthLessThan: 0,
-      depthGreaterThan: sizeFilter?.depth ? Number(sizeFilter.depth) : 0,
-      depthLessThan: 0,
+      titleContains: keyword || null,
+      heightGreaterThan: sizeFilter?.height ? Number(sizeFilter.height) : null,
+      heightLessThan: null,
+      widthGreaterThan: sizeFilter?.width ? Number(sizeFilter.width) : null,
+      widthLessThan: null,
+      depthGreaterThan: sizeFilter?.depth ? Number(sizeFilter.depth) : null,
+      depthLessThan: null,
       periodicityList: price?.periodicity ? [price.periodicity] : [],
-      valueGreaterThan: price?.minPrice ? Number(price.minPrice) : 0,
-      valueLessThan: price?.maxPrice ? Number(price.maxPrice) : 0,
+      valueGreaterThan: price?.minPrice ? Number(price.minPrice) : null,
+      valueLessThan: price?.maxPrice ? Number(price.maxPrice) : null,
       idCity: location?.cityId ? Number(location.cityId) : null,
       idState: location?.stateId ? Number(location.stateId) : null,
-      neighborhoodContains: "",
+      neighborhoodContains: null,
       startDate: null,
       endDate: null,
       startHour: null,
       endHour: null,
-      onlyActive: 'S',
+      onlyActive: "Y",
       featureList: features.length > 0 ? features.map(id => Number(id)) : null,
       typeActivityList: typeActivities.length > 0 ? typeActivities.map(id => Number(id)) : []
     };

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
 import NextLink from 'next/link';
-import { AppBar, Box, Button, Container, IconButton, Link, Toolbar } from '@mui/material';
+import { AppBar, Box, Button, Container, IconButton, Link, Toolbar, Typography } from '@mui/material';
 import { Menu as MenuIcon } from '../icons/menu';
 import { Logo } from './logo';
 import { styled } from '@mui/material/styles';
@@ -15,6 +15,9 @@ const MainNavbarLink = styled(Link)(({ theme }) => ({
     backgroundColor: theme.palette.action.hover
   },
   cursor: 'pointer',
+  textDecoration: 'none',
+  transition: 'all 0.2s ease-in-out',
+  fontWeight: 500
 }));
 
 export const MainNavbar = (props) => {
@@ -39,11 +42,19 @@ export const MainNavbar = (props) => {
           disableGutters
           sx={{ minHeight: 64 }}
         >
+          {/* Logo e nome */}
           <NextLink
-            href="/search/property"
+            href="/"
             passHref
           >
-            <a>
+            <Link
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                textDecoration: 'none',
+                color: 'inherit'
+              }}
+            >
               <Logo
                 sx={{
                   display: {
@@ -51,12 +62,30 @@ export const MainNavbar = (props) => {
                     xs: 'none'
                   },
                   height: 40,
-                  width: 40
+                  width: 40,
+                  mr: 1
                 }}
               />
-            </a>
+              <Typography
+                variant="h6"
+                component="div"
+                sx={{
+                  fontWeight: 'bold',
+                  color: 'primary.main',
+                  display: {
+                    md: 'block',
+                    xs: 'none'
+                  }
+                }}
+              >
+                Didere
+              </Typography>
+            </Link>
           </NextLink>
+          
           <Box sx={{ flexGrow: 1 }} />
+          
+          {/* Menu mobile */}
           <IconButton
             color="inherit"
             onClick={onOpenSidebar}
@@ -68,26 +97,21 @@ export const MainNavbar = (props) => {
           >
             <MenuIcon fontSize="small" />
           </IconButton>
+          
+          {/* Menu desktop */}
           <Box
             sx={{
               alignItems: 'center',
               display: {
                 md: 'flex',
                 xs: 'none'
-              }
+              },
+              gap: 1
             }}
           >
-            <MainNavbarLink
-              color="textSecondary"
-              underline="none"
-              variant="subtitle2"
-              onClick={() => { setOpenInterestModal(true); } }
-            >
-              Cadastrar meu espaço
-            </MainNavbarLink>
             <NextLink
-                href="/search/property"
-                passHref
+              href="/search/property"
+              passHref
             >
               <MainNavbarLink
                 color="textSecondary"
@@ -97,24 +121,40 @@ export const MainNavbar = (props) => {
                 Espaços disponíveis
               </MainNavbarLink>
             </NextLink>
+            
+            <MainNavbarLink
+              color="textSecondary"
+              underline="none"
+              variant="subtitle2"
+              onClick={() => { setOpenInterestModal(true); }}
+            >
+              Cadastrar meu espaço
+            </MainNavbarLink>
+            
             <Button
               component="a"
               href="/authentication/login"
               size="medium"
-              sx={{ ml: 2 }}
+              sx={{ 
+                ml: 2,
+                px: 3,
+                py: 1,
+                fontWeight: 'bold'
+              }}
               variant="contained"
+              color="primary"
             >
               Login
             </Button>
 
-            {}
+            {/* Modal de cadastro */}
             <ClaimFormModal
               open={openInterestModal}
               onClose={handleCloseInterestModal}
               propertyId={0}
               propertyTitle={'Cadastrar meu espaço'}
               source={'Locator'}
-            ></ClaimFormModal>
+            />
           </Box>
         </Toolbar>
       </Container>

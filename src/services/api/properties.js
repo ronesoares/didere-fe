@@ -2,27 +2,31 @@ import axiosInstance from '../../lib/axios';
 
 class PropertiesService {
   async searchPublic(filters = {}) {
-    try {
-      const params = new URLSearchParams();
-      
-      Object.keys(filters).forEach(key => {
-        if (filters[key] !== undefined && filters[key] !== null && filters[key] !== '') {
-          if (Array.isArray(filters[key])) {
-            params.append(key, filters[key].join(','));
-          } else {
-            params.append(key, filters[key]);
-          }
+  try {
+    const params = new URLSearchParams();
+    
+    Object.keys(filters).forEach(key => {
+      if (filters[key] !== undefined && filters[key] !== null && filters[key] !== '') {
+        if (Array.isArray(filters[key])) {
+          filters[key].forEach(value => {
+            if (value !== undefined && value !== null && value !== '') {
+              params.append(key, value);
+            }
+          });
+        } else {
+          params.append(key, filters[key]);
         }
-      });
+      }
+    });
 
-      const response = await axiosInstance.get(`/properties/search/public?${params.toString()}`);
-      return response.data;
-    } catch (error) {
-      throw new Error(
-        error.response?.data?.message || 'Erro ao buscar propriedades'
-      );
-    }
+    const response = await axiosInstance.get(`/properties/search/public?${params.toString()}`);
+    return response.data;
+  } catch (error) {
+    throw new Error(
+      error.response?.data?.message || 'Erro ao buscar propriedades'
+    );
   }
+}
 
   async getAll(page = 0, limit = 10) {
     try {

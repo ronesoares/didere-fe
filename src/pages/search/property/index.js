@@ -2,7 +2,6 @@ import { useCallback, useState, useEffect, useMemo } from 'react';
 import Head from 'next/head';
 import NextLink from 'next/link';
 import {
-  Avatar,
   Box,
   Button,
   Card,
@@ -10,17 +9,19 @@ import {
   Container,
   Link,
   TablePagination,
-  Typography
+  Typography,
+  CardMedia
 } from '@mui/material';
 import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined';
 import HomeWorkIcon from '@mui/icons-material/HomeWork';
-import propertyService from '../../../services/registrations/property-service';
+import ImageIcon from '@mui/icons-material/Image';
+import PropertiesService from '../../../services/api/properties';
 import { PropertyBrowseFilter } from '../../../components/search/property/property-browse-filter';
 import { withMainLayout } from '../../../hocs/with-main-layout';
 import { useMounted } from '../../../hooks/use-mounted';
+import { getBase64 } from '../../../services/api/files';
 import "slick-carousel/slick/slick.css"; 
 import "slick-carousel/slick/slick-theme.css";
-import { getInitials } from '../../../utils/get-initials';
 
 const formatCurrency = (value) => {
   return new Intl.NumberFormat('pt-BR', {
@@ -35,26 +36,74 @@ const PropertyBrowse = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(25);
   const [currentFilters, setCurrentFilters] = useState({});
+  const [thumbnails, setThumbnails] = useState({});
 
-  const jsonFIlter = useMemo(() => ({
-    "titleContains": "",
-    "heightGreaterThan": 0,
-    "heightLessThan": 0,
-    "widthGreaterThan": 0,
-    "widthLessThan": 0,
-    "depthGreaterThan": 0,
-    "depthLessThan": 0,
+  // Função para carregar thumbnail de uma propriedade
+  const loadThumbnail = useCallback(async (property) => {
+    if (!property.files || property.files.length === 0) return null;
+    
+    try {
+      // Procurar por arquivo thumbnail primeiro
+      const thumbnailFile = property.files.find(file => 
+        file.name && file.name.toLowerCase().includes('thumbnail')
+      );
+      
+      // Se não encontrar thumbnail, usar a primeira imagem
+      const fileToUse = thumbnailFile || property.files[0];
+      
+      if (fileToUse) {
+        const base64Image = await getBase64(fileToUse.id, true);
+        return base64Image;
+      }
+    } catch (error) {
+      console.error('Erro ao carregar thumbnail:', error);
+    }
+    return null;
+  }, []);
+
+  // Carregar thumbnails para as propriedades
+  useEffect(() => {
+    const loadThumbnails = async () => {
+      const newThumbnails = {};
+      
+      for (const property of properties) {
+        if (!thumbnails[property.id]) {
+          const thumbnail = await loadThumbnail(property);
+          if (thumbnail) {
+            newThumbnails[property.id] = thumbnail;
+          }
+        }
+      }
+      
+      if (Object.keys(newThumbnails).length > 0) {
+        setThumbnails(prev => ({ ...prev, ...newThumbnails }));
+      }
+    };
+
+    if (properties.length > 0) {
+      loadThumbnails();
+    }
+  }, [properties, loadThumbnail, thumbnails]);
+
+  const jsonFilter = useMemo(() => ({
+    "titleContains": null,
+    "heightGreaterThan": null,
+    "heightLessThan": null,
+    "widthGreaterThan": null,
+    "widthLessThan": null,
+    "depthGreaterThan": null,
+    "depthLessThan": null,
     "periodicityList": [],
-    "valueGreaterThan": 0,
-    "valueLessThan": 0,
+    "valueGreaterThan": null,
+    "valueLessThan": null,
     "idCity": null,
     "idState": null,
-    "neighborhoodContains": "",
+    "neighborhoodContains": null,
     "startDate": null,
     "endDate": null,
     "startHour": null,
     "endHour": null,
-    "onlyActive": "S",
+    "onlyActive": "Y",
     "featureList": [],
     "typeActivityList": []
   }), []);
@@ -72,12 +121,6 @@ const PropertyBrowse = () => {
 
   const paginatedProperties = applyPagination(properties, page, rowsPerPage);
 
-  useEffect(() => {
-    if (Object.keys(currentFilters).length > 0) {
-      getProperties(currentFilters);
-    }
-  }, [currentFilters, getProperties]);
-
   const getProperties = useCallback(async (filters = {}) => {
     try {
       const hasFilters = Object.values(filters).some(value => 
@@ -86,7 +129,7 @@ const PropertyBrowse = () => {
       );
 
       const requestFilters = hasFilters ? filters : {};
-      const data = await propertyService.getAll(requestFilters);
+      const data = await PropertiesService.searchPublic(requestFilters);
 
       if (isMounted()) {
         setProperties(data);
@@ -97,11 +140,17 @@ const PropertyBrowse = () => {
   }, [isMounted]);
 
   useEffect(() => {
-    getProperties(jsonFIlter);
-  }, [getProperties, jsonFIlter]);
+    if (Object.keys(currentFilters).length > 0) {
+      getProperties(currentFilters);
+    }
+  }, [currentFilters, getProperties]);
+
+  useEffect(() => {
+    getProperties(jsonFilter);
+  }, [getProperties, jsonFilter]);
 
   const handleFilter = (filters) => {
-    setCurrentFilters(filters || jsonFIlter);
+    setCurrentFilters(filters || jsonFilter);
     setPage(0);
   };
 
@@ -155,21 +204,46 @@ const PropertyBrowse = () => {
                         }
                       }}
                     >
-                      <Avatar
-                        component="a"
-                        src={property.photo}
+                      {/* Thumbnail da propriedade */}
+                      <Box
                         sx={{
-                          background: 'transparent',
                           mr: 2,
                           mb: {
                             xs: 2,
                             md: 0
-                          }
+                          },
+                          minWidth: 200,
+                          maxWidth: 200
                         }}
-                        variant="rounded"
                       >
-                        {getInitials(property.title)}
-                      </Avatar>
+                        {thumbnails[property.id] ? (
+                          <CardMedia
+                            component="img"
+                            height="150"
+                            image={thumbnails[property.id]}
+                            alt={property.title}
+                            sx={{
+                              borderRadius: 1,
+                              objectFit: 'cover'
+                            }}
+                          />
+                        ) : (
+                          <Box
+                            sx={{
+                              height: 150,
+                              width: '100%',
+                              backgroundColor: 'grey.200',
+                              borderRadius: 1,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center'
+                            }}
+                          >
+                            <ImageIcon sx={{ fontSize: 40, color: 'grey.500' }} />
+                          </Box>
+                        )}
+                      </Box>
+                      
                       <div style={{ width: '100%' }}>
                         <NextLink
                           href={`/search/property/${property.id}`}
@@ -184,35 +258,27 @@ const PropertyBrowse = () => {
                             <Typography variant="h6">
                               {property.title} - Cód.: {property.id}
                             </Typography>
-                            <Typography variant="body2">
+                            <Typography variant="body2" color="textSecondary">
                               {property.typeActivities}
                             </Typography>
-                            <Box
-                              sx={{
-                              backgroundImage: `url(${property.photo})`,
-                              backgroundPosition: 'center',
-                              backgroundSize: 'cover',
-                              borderRadius: 1,
-                              height: 230,
-                              mt: 3
-                              }}
-                          />
                           </Link>
                         </NextLink>
+                        
                         <Box
                           sx={{
                             alignItems: 'center',
                             display: 'flex',
                             flexWrap: 'wrap',
-                            ml: -3,
+                            ml: -1,
+                            mt: 2,
                             '& > *': {
-                              ml: 3,
+                              ml: 1,
                               mt: 1
                             }
                           }}
                         >
                           <NextLink
-                            href={property.urlMaps || `https:\\www.didere.com.br`}
+                            href={property.urlMaps || `https://www.didere.com.br`}
                             passHref
                           >
                             <Link
@@ -241,7 +307,8 @@ const PropertyBrowse = () => {
                               </Box>
                             </Link>
                           </NextLink>
-                          {property.photo && (
+                          
+                          {property.features && (
                             <Box
                               sx={{
                                 alignItems: 'center',
@@ -249,7 +316,7 @@ const PropertyBrowse = () => {
                               }}
                             >
                               <HomeWorkIcon
-                                color="textSecondary"
+                                color="action"
                                 fontSize="small"
                                 sx={{ mr: 1 }}
                               />
@@ -258,11 +325,12 @@ const PropertyBrowse = () => {
                                 noWrap
                                 variant="overline"
                               >
-                                {property.features.replace(/;/g, ',')}
+                                {property.features.replace(/;/g, ', ')}
                               </Typography>
                             </Box>
                           )}
                         </Box>
+                        
                         <Box sx={{ mt: 2 }}>
                           <Typography
                             variant="body2"
@@ -277,6 +345,7 @@ const PropertyBrowse = () => {
                             {separateTextInNewLines(property.rentalPeriod)}
                           </Typography>
                         </Box>
+                        
                         <Box 
                           sx={{ 
                             mt: 2,
@@ -289,6 +358,7 @@ const PropertyBrowse = () => {
                             <Typography
                               variant="h6"
                               fontWeight="bold"
+                              color="primary"
                             >
                               R$ {formatCurrency(property.value)}/{property.periodicity}
                             </Typography>
@@ -296,17 +366,15 @@ const PropertyBrowse = () => {
                           <NextLink
                             href={`/search/property/${property.id}`}
                             passHref
-                            target="_blank" 
-                            rel="noopener noreferrer"
                           >
                             <Button
                               variant="contained"
                               color="warning"
+                              size="large"
                             >
-                              Detalhes
+                              Ver Detalhes
                             </Button>
                           </NextLink>
-                          
                         </Box>
                       </div>
                     </Box>
